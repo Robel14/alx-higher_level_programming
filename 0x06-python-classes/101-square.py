@@ -1,41 +1,67 @@
-class Square:
-    def __init__(self, size=0, position=(0, 0)):
-        self.__size = size
-        self.__position = position
+#!/bin/bash
 
-    @property
-    def size(self):
-        return self.__size
+class Square {
+    size=0
+    position=(0 0)
 
-    @size.setter
-    def size(self, value):
-        if not isinstance(value, int):
-            raise TypeError("size must be an integer")
-        if value < 0:
-            raise ValueError("size must be >= 0")
-        self.__size = value
+    size() {
+        echo $size
+    }
 
-    @property
-    def position(self):
-        return self.__position
+    set_size() {
+        if ! [[ $1 =~ ^[0-9]+$ ]]; then
+            echo "size must be an integer" >&2
+            exit 1
+        fi
 
-    @position.setter
-    def position(self, value):
-        if not isinstance(value, tuple) or len(value) != 2 or \
-                not all(isinstance(num, int) and num >= 0 for num in value):
-            raise TypeError("position must be a tuple of 2 positive integers")
-        self.__position = value
+        if (($1 < 0)); then
+            echo "size must be >= 0" >&2
+            exit 1
+        fi
 
-    def area(self):
-        return self.__size ** 2
+        size=$1
+    }
 
-    def my_print(self):
-        if self.__size == 0:
-            print()
+    position() {
+        echo "${position[@]}"
+    }
+
+    set_position() {
+        if [[ ${#1[@]} -ne 2 || ! ${1[0]} =~ ^[0-9]+$ || ! ${1[1]} =~ ^[0-9]+$ ]]; then
+            echo "position must be a tuple of 2 positive integers" >&2
+            exit 1
+        fi
+
+        position=("${1[@]}")
+    }
+
+    area() {
+        echo $(($size * $size))
+    }
+
+    my_print() {
+        if (($size == 0)); then
+            echo
             return
+        fi
 
-        for _ in range(self.__position[1]):
-            print()
+        for ((i = 0; i < ${position[1]}; i++)); do
+            echo
+        done
 
-        for _ in range(self.__size):
-            print(" " * self.__position[0] + "#" * self.__size)
+        for ((i = 0; i < $size; i++)); do
+            printf "%${position[0]}s" ""
+            printf "%${size}s\n" "#"
+        done
+    }
+}
+
+# Usage example
+square=Square
+$square.set_size 5
+$square.set_position 3 2
+echo "Size: $($square.size)"
+echo "Position: $($square.position)"
+echo "Area: $($square.area)"
+echo "Printing square:"
+$square.my_print
